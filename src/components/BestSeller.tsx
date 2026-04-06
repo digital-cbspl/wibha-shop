@@ -8,7 +8,7 @@ import {
     Eye,
     ShoppingBag,
     ChevronLeft,
-    ChevronRight,
+    ChevronRight,  
     Star,
 } from "lucide-react";
 import { img1, img2, img4, img5, img6, img7, img8, img9 } from "../assets/image/image";
