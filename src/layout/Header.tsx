@@ -37,7 +37,7 @@ export default function Header() {
     };
 
     return (
-        <header className="w-full bg-white relative z-50">
+        <header className="w-full bg-white sticky top-9 z-50">
 
             {/* MAIN HEADER */}
             <div className="max-w-7xl mx-auto flex items-center justify-between py-2 px-4">
