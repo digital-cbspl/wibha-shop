@@ -44,7 +44,7 @@ export default function BestSeller() {
 
     return (
         <>
-            <section className="py-16 bg-[#f6f8f7] group">
+            <section className="py-10 bg-[#f6f8f7] group">
 
                 {/* Heading */}
                 <div className="text-center mb-10">
@@ -56,7 +56,7 @@ export default function BestSeller() {
                     </p>
                 </div>
 
-                <div className="relative max-w-7xl mx-auto px-4">
+                <div className="relative max-w-full mx-auto px-4 md:px-15">
 
                     {/* LEFT */}
                     <button
@@ -109,7 +109,7 @@ export default function BestSeller() {
                                         <IconBtn><ShoppingBag size={16} className="pointer-events-none" /></IconBtn>
                                     </div>
 
-                                    <div className="relative w-full h-[500px] sm:h-[300px] md:h-[320px] lg:h-[350px]">
+                                    <div className="relative w-full h-[500px] sm:h-[300px] md:h-[500px] lg:h-[500px]">
                                         <Image
                                             src={item.image}
                                             alt={item.name}

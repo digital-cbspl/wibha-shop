@@ -20,7 +20,7 @@ export default function TopBar() {
   }, []);
 
   return (
-    <div className="bg-black text-white sticky top-0 z-[100] text-center text-sm py-2 tracking-wide">
+    <div className="bg-black text-white sticky top-0 z-[20] text-center text-sm py-2 tracking-wide">
   {messages[index]}
 </div>
   );

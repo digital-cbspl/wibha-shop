@@ -36,7 +36,7 @@ export default function TopRated() {
 
     return (
         <>
-            <section className="py-16 bg-[#f6f8f7]">
+            <section className="py-10 bg-[#f6f8f7]">
 
                 {/* Heading */}
                 <div className="text-center mb-10">
@@ -48,7 +48,7 @@ export default function TopRated() {
                     </p>
                 </div>
 
-                <div className="max-w-7xl mx-auto px-4">
+                <div className="max-w-full mx-auto px-4 md:px-15">
 
                     {/* GRID (4 TOP + 4 BOTTOM) */}
                     <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
@@ -79,7 +79,7 @@ export default function TopRated() {
                                     </div>
 
                                     {/* IMAGE */}
-                                    <div className="relative w-full h-[250px] sm:h-[300px] md:h-[320px] lg:h-[350px]">
+                                    <div className="relative w-full h-[250px] sm:h-[300px] md:h-[350px] lg:h-[500px]">
                                         <Image
                                             src={item.image}
                                             alt={item.name}

@@ -26,8 +26,8 @@ export default function CategoriesSection() {
     };
 
     return (
-        <section className="w-full py-8 md:py-12 bg-white">
-            <div className="max-w-7xl mx-auto px-4 md:px-6">
+        <section className="w-full py-8 md:py-10 bg-white">
+            <div className="max-w-full mx-auto px-4 md:px-15">
 
                 {/* HEADER */}
                 <div className="w-full text-center">
@@ -48,7 +48,7 @@ export default function CategoriesSection() {
                     {/* SCROLL CONTAINER */}
                     <div
                         ref={scrollRef}
-                        className="flex gap-4 md:gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide"
+                        className="flex gap-8 md:gap-6 overflow-x-auto scroll-smooth snap-x snap-mandatory scrollbar-hide pl-4 pr-4 scroll-pl-4"
                     >
                         {categories.map((item, index) => (
                             <div
@@ -56,7 +56,7 @@ export default function CategoriesSection() {
                                 className="flex flex-col items-center min-w-[100px] md:min-w-[120px] snap-start group cursor-pointer"
                             >
                                 {/* IMAGE CIRCLE */}
-                                <div className="relative w-[120px] h-[120px] md:w-[250px] md:h-[250px] rounded-full overflow-hidden group">
+                                <div className="relative w-[150px] h-[150px] md:w-[300px] md:h-[300px] rounded-full overflow-hidden group">
                                     <Image
                                         src={item.image}
                                         alt={item.name}

@@ -40,7 +40,7 @@ export default function Header() {
         <header className="w-full bg-white sticky top-9 z-50">
 
             {/* MAIN HEADER */}
-            <div className="max-w-7xl mx-auto flex items-center justify-between py-2 px-4">
+            <div className="max-w-full mx-auto flex items-center justify-between py-2 px-4 md:px-15">
 
                 {/* LEFT - LOGO */}
                 <div className="flex items-center">
@@ -123,7 +123,7 @@ export default function Header() {
             {/* MOBILE DRAWER */}
             <div
                 className={clsx(
-                    "fixed top-0 left-0 w-full h-full bg-white transition-transform duration-300 md:hidden",
+                    "fixed top-0 left-0 w-full h-full bg-white transition-transform duration-300 md:hidden z-50",
                     mobileOpen ? "translate-x-0" : "-translate-x-full"
                 )}
             >

@@ -6,7 +6,7 @@ import { img10 } from "../assets/image/image";
 export default function OfferBanner() {
   return (
     <section className="py-10 bg-[#e8e8e8]">
-      <div className="max-w-7xl mx-auto px-4">
+      <div className="max-w-full mx-auto px-4 md:px-15">
 
         <div className="rounded-2xl bg-white overflow-hidden relative">
 

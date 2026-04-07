@@ -10,7 +10,7 @@ export default function Footer() {
         <footer className="bg-[#f6f8f7] text-gray-800">
 
             {/* TOP */}
-            <div className="max-w-7xl mx-auto px-4 py-12 grid gap-10 md:grid-cols-4">
+            <div className="max-w-full mx-auto px-4 md:px-15 py-12 grid gap-10 md:grid-cols-5">
 
                 {/* Logo + About */}
                 <div>
@@ -45,6 +45,17 @@ export default function Footer() {
                     ]}
                 />
 
+                {/* Company */}
+                <FooterCol
+                    title="Company"
+                    items={[
+                        "About Us",
+                        "Careers",
+                        "Blog",
+                        "Privacy Policy",
+                    ]}
+                />
+
                 {/* Support */}
                 <FooterCol
                     title="Support"
@@ -69,7 +80,7 @@ export default function Footer() {
                             placeholder="Enter your email"
                             className="px-3 py-2 text-sm outline-none flex-1"
                         />
-                        <button className="bg-[#18582e] px-4 flex items-center justify-center text-white">
+                        <button className="bg-[#18582e] px-2 flex items-center justify-center text-white">
                             <Mail size={18} />
                         </button>
                     </div>
@@ -81,7 +92,7 @@ export default function Footer() {
             <div className="border-t border-gray-200"></div>
 
             {/* BOTTOM */}
-            <div className="max-w-7xl mx-auto px-4 py-2 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500">
+            <div className="max-w-full mx-auto px-4 md:px-15 py-2 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500">
 
                 <p>© {new Date().getFullYear()} WIBHA | All Rights Reserved || Developed by CBSPL. </p>
 
