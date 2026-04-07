@@ -178,7 +178,7 @@ function NavItem({
 
 function Dropdown({ children }: any) {
     return (
-        <div className="absolute top-full left-0 mt-4 bg-white shadow-lg p-4 min-w-[180px] z-50 flex flex-col gap-2 text-sm">
+        <div className="absolute top-full left-0 mt-2 bg-white shadow-lg p-4 min-w-[180px] z-50 flex flex-col gap-2 text-sm">
             {children}
         </div>
     );
@@ -188,7 +188,7 @@ function Dropdown({ children }: any) {
 
 function MegaMenu() {
     return (
-        <div className="fixed left-1/2 -translate-x-1/2 top-[100px] w-screen bg-white shadow-xl z-40">
+        <div className="fixed left-1/2 -translate-x-1/2 top-[80px] w-screen bg-white shadow-xl z-40">
 
             {/* CENTERED CONTENT */}
             <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-5 gap-8">
