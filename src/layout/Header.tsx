@@ -40,7 +40,7 @@ export default function Header() {
         <header className="w-full bg-white sticky top-9 z-50">
 
             {/* MAIN HEADER */}
-            <div className="max-w-full mx-auto flex items-center justify-between py-2 px-4 md:px-15">
+            <div className="max-w-full mx-auto flex items-center justify-between py-1 px-4 md:px-15">
 
                 {/* LEFT - LOGO */}
                 <div className="flex items-center">
@@ -50,7 +50,7 @@ export default function Header() {
                         width={180}
                         height={60}
                         priority
-                        className="object-contain"
+                        className="object-contain w-[100px] md:w-[120px] h-auto"
                     />
                 </div>
 
@@ -71,20 +71,20 @@ export default function Header() {
                     <NavItem label="BLOG" />
 
                     <NavItem
-                        label="PAGES"
+                        label="ABOUT"
                         hasDropdown
-                        onEnter={() => handleEnter("pages")}
+                        onEnter={() => handleEnter("about")}
                         onLeave={handleLeave}
                     >
-                        {active === "pages" && (
+                        {active === "about" && (
                             <Dropdown>
-                                <a>About</a>
+                                <a>About Us</a>
                                 <a>FAQ</a>
                                 <a>Terms</a>
                             </Dropdown>
                         )}
                     </NavItem>
-
+                    <NavItem label="SALES" />
                     <NavItem label="CONTACT" />
                 </nav>
 
@@ -140,7 +140,7 @@ export default function Header() {
                         <span>Best Sellers</span>
                     </MobileItem>
                     <MobileItem label="BLOG" />
-                    <MobileItem label="PAGES">
+                    <MobileItem label="about">
                         <span>About</span>
                         <span>FAQ</span>
                         <span>Terms</span>
@@ -196,40 +196,45 @@ function MegaMenu() {
                 <MenuColumn
                     title="Categories"
                     items={[
-                        "Eau de Parfum",
-                        "Eau de Toilette",
-                        "Body Mists",
-                        "Travel Sizes"
+                        "Clothing",
+                        "Crafts",
+                        "Wedding",
+                        "Accessories",
+                        "Artisans",
                     ]}
                 />
 
                 <MenuColumn
-                    title="All Perfumes"
+                    title="Clothing"
                     items={[
-                        "Men's Fragrances",
-                        "Women's Fragrances",
-                        "Unisex Perfumes",
-                        "New Arrivals"
+                        "Men's Clothing",
+                        "Women's Clothing",
+                        "Boy's Clothing",
+                        "Girl's Clothing",
+                        "Kid's Clothing",
+                        "New Arrivals",
                     ]}
                 />
 
                 <MenuColumn
-                    title="Offers & Discounts"
+                    title="Crafts"
                     items={[
-                        "Limited Editions",
-                        "Best Sellers",
-                        "Seasonal Sales",
-                        "Clearance Sale"
+                        "Lamps & Lights",
+                        "Linen & Mats",
+                        "Furnitures & Woods",
+                        "Bath & Beauty",
+                        "Wall hangings",
                     ]}
                 />
 
                 <MenuColumn
-                    title="Support"
+                    title="Artisans"
                     items={[
-                        "Customer Service",
-                        "Track Order",
-                        "Shipping & Returns",
-                        "FAQ"
+                        "Mandala Art",
+                        "Pattachitra",
+                        "Madhubani",
+                        "Saura Painting",
+                        "Applique",
                     ]}
                 />
 
