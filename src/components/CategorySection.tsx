@@ -6,11 +6,11 @@ import { ChevronRight } from "lucide-react";
 import { ethnic, handicraft, handloom, jewelry, spiritual } from "../assets/image/image";
 
 const categories = [
-    { name: "Handloom", image: handloom.src },
-    { name: "Handicrafts", image: handicraft.src },
-    { name: "Ethnic", image: ethnic.src },
-    { name: "Jewelry", image: jewelry.src },
-    { name: "Spiritual", image: spiritual.src },
+    { name: "Clothing", image: ethnic.src },
+    { name: "Craft", image: handicraft.src },
+    { name: "Wedding", image: jewelry.src },
+    { name: "Accessories", image: handloom.src },
+    { name: "Artisans", image: spiritual.src },
 ];
 
 export default function CategoriesSection() {
