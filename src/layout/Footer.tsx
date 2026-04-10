@@ -15,7 +15,7 @@ export default function Footer() {
                 {/* Logo + About */}
                 <div>
                     <Image
-                        src={logo.src}   // 👈 your logo path
+                        src={logo.src} 
                         alt="Logo"
                         width={140}
                         height={50}
