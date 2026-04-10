@@ -36,3 +36,7 @@ body {
 
 /* Hide scrollbar */
 
+/* Apply to all checkboxes */
+input[type="checkbox"] {
+  accent-color: #b39024;
+}
