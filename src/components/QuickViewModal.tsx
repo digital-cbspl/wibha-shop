@@ -26,7 +26,7 @@ export default function QuickViewModal({ product, onClose }: any) {
                     {/* LEFT IMAGE */}
                     <div className="bg-[#ede7e4] relative w-full h-[400px] md:h-full">
                         <Image
-                            src={product.image}
+                            src={product.image.src || product.image}
                             alt={product.name}
                             fill
                             className="object-cover w-full h-full"

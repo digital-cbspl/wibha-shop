@@ -3,7 +3,7 @@
 export default function Filter({ show, setShow }: any) {
   return (
     <aside
-      className={`fixed md:static top-0 left-0 h-full w-[280px] bg-white z-50 p-6 shadow-md transition-transform ${
+      className={`fixed md:sticky top-0 left-0 h-full md:h-[calc(100vh)] overflow-y-auto w-[280px] bg-white p-6 shadow-md transition-transform ${
         show ? "translate-x-0" : "-translate-x-full md:translate-x-0"
       }`}
     >
@@ -38,7 +38,7 @@ function FilterSection({ title, children }: any) {
   return (
     <div className="mb-6">
       <h3 className="font-medium mb-2">{title}</h3>
-      <div className="flex flex-col gap-2 text-sm text-gray-600">
+      <div className="flex flex-col gap-2 text-sm text-gray-600 ">
         {children}
       </div>
     </div>
