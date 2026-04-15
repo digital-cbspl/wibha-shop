@@ -7,7 +7,7 @@ import { logo, mastercard, upi, visa } from "../assets/image/image";
 
 export default function Footer() {
     return (
-        <footer className="bg-[#f6f8f7] text-gray-800">
+        <footer className="bg-[#ffffff] text-gray-800 backdrop-blur-sm shadow-lg shadow-gray-200/40 border-t border-gray-50">
 
             {/* TOP */}
             <div className="max-w-full mx-auto px-4 md:px-15 py-12 grid gap-10 md:grid-cols-5">
