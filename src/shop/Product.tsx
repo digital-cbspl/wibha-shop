@@ -5,9 +5,9 @@ import { Heart, Eye, ShoppingBag } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 export default function Product({ item, setSelectedProduct }: any) {
-   const router = useRouter();
+  const router = useRouter();
   return (
-    <div className="group cursor-pointer"  onClick={() => router.push(`/product/${item.slug}`)}>
+    <div className="group cursor-pointer" onClick={() => router.push(`/product/${item.slug}`)}>
 
       <div className="relative bg-[#ede7e4] overflow-hidden w-full h-[250px] sm:h-[300px] md:h-[350px] lg:h-[500px]">
 
@@ -42,7 +42,7 @@ export default function Product({ item, setSelectedProduct }: any) {
         </div>
 
         {/* Overlay */}
-        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition pointer-events-none" onClick={(e) => e.stopPropagation()}/>
+        <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition pointer-events-none" onClick={(e) => e.stopPropagation()} />
       </div>
 
       <div className="mt-3 text-center">
