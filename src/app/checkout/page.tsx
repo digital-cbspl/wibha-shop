@@ -8,9 +8,9 @@ import { img1, img2, img6 } from "../../assets/image/image";
 
 // Premium Mock Data
 const cartItems = [
-    { id: 1, name: "Pottery Decorative Plate - Indigo Florals", price: 30.00, image: img1.src, quantity: 1 },
-    { id: 2, name: "Pottery Jar with Lids - Yellow Ornate", price: 79.00, image: img2.src, quantity: 2 },
-    { id: 3, name: "Dust Painting - Lilac Muse", price: 70.00, image: img6.src, quantity: 1 },
+    { id: 1, name: "Pottery Decorative Plate - Indigo Florals", price: 30.00, image: img1.src, quantity: 1, type: "Ceramics" },
+    { id: 2, name: "Pottery Jar with Lids - Yellow Ornate", price: 79.00, image: img2.src, quantity: 2, type: "Ceramics" },
+    { id: 3, name: "Dust Painting - Lilac Muse", price: 70.00, image: img6.src, quantity: 1, type: "Artwork" },
 ];
 
 const initialAddresses = [
@@ -281,7 +281,7 @@ export default function PremiumCheckout() {
                                     <div className="flex flex-col justify-center">
                                         <h4 className="text-[15px] font-medium text-gray-900 leading-snug line-clamp-2">{item.name}</h4>
                                         <p className="text-sm text-gray-400 mt-1 mb-2">{item.type}</p>
-                                        <span className="font-serif font-semibold text-[#18582e]">₹{(item.price * item.quantity).toFixed(2)}</span>
+                                        <span className="font-semibold text-[#18582e]">₹{(item.price * item.quantity).toFixed(2)}</span>
                                     </div>
                                 </div>
                             ))}
@@ -314,7 +314,7 @@ export default function PremiumCheckout() {
                                 <span className="text-lg font-medium text-gray-900">Total</span>
                                 <div className="text-right">
                                     <span className="text-xs text-gray-400 font-bold tracking-widest uppercase mr-2">INR</span>
-                                    <span className="font-serif text-3xl font-bold text-[#1a1a1a]">₹{total.toFixed(2)}</span>
+                                    <span className="text-3xl font-bold text-[#1a1a1a]">₹{total.toFixed(2)}</span>
                                 </div>
                             </div>
                         </div>
@@ -323,22 +323,6 @@ export default function PremiumCheckout() {
                 </div>
 
             </main>
-
-            <style jsx global>{`
-                .custom-scroll::-webkit-scrollbar {
-                    width: 4px;
-                }
-                .custom-scroll::-webkit-scrollbar-track {
-                    background: transparent; 
-                }
-                .custom-scroll::-webkit-scrollbar-thumb {
-                    background: #e5e7eb; 
-                    border-radius: 4px;
-                }
-                .custom-scroll::-webkit-scrollbar-thumb:hover {
-                    background: #d1d5db; 
-                }
-            `}</style>
 
         </div>
     );
