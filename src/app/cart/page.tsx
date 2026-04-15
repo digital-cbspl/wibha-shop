@@ -150,10 +150,12 @@ export default function CartPage() {
                                     </div>
                                 </div>
 
-                                <button className="w-full bg-[#18582e] hover:bg-[#124222] text-white py-3.5 rounded-full font-medium text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#18582e]/20 hover:shadow-lg hover:shadow-[#18582e]/30">
-                                    Proceed to Checkout
-                                    <ArrowRight size={18} />
-                                </button>
+                                <a href="/checkout" className="w-full">
+                                    <button className="w-full bg-[#18582e] hover:bg-[#124222] text-white py-3.5 rounded-full font-medium text-sm flex items-center justify-center gap-2 transition-all shadow-md shadow-[#18582e]/20 hover:shadow-lg hover:shadow-[#18582e]/30">
+                                        Proceed to Checkout
+                                        <ArrowRight size={18} />
+                                    </button>
+                                </a>
 
                                 <div className="mt-4 text-center">
                                     <p className="text-xs text-gray-500">Secure Checkout powered by Wibha</p>

@@ -15,13 +15,14 @@ import clsx from "clsx";
 import { logo } from "../assets/image/image";
 import axios from "axios";
 import AuthModal from "../components/AuthModal";
+import Link from "next/link";
 
 export default function Header() {
     const [active, setActive] = useState<string | null>(null);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
     const [mobileOpen, setMobileOpen] = useState(false);
     
-    // <-- Auth Modal State added here
+    // <-- Auth Modal State
     const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
     const [menu, setMenu] = useState<any[]>([]);
@@ -88,126 +89,139 @@ export default function Header() {
         timeoutRef.current = setTimeout(() => setActive(null), 200);
     };
 
+    // WRAP THE RETURN IN A FRAGMENT <> ... </>
     return (
-        <header className="w-full bg-white sticky top-9 z-50 backdrop-blur-sm shadow-lg shadow-gray-200/40 border-b border-gray-50">
+        <>
+            <header className="w-full bg-white/95 sticky top-9 z-40 backdrop-blur-sm shadow-lg shadow-gray-200/40 border-b border-gray-50">
 
-            {/* MAIN HEADER */}
-            <div className="max-w-full mx-auto flex items-center justify-between py-1 px-4 md:px-15">
+                {/* MAIN HEADER */}
+                <div className="max-w-full mx-auto flex items-center justify-between py-1 px-4 md:px-15">
 
-                {/* LOGO */}
-                <div className="flex items-center">
-                    <Image
-                        src={logo.src}
-                        alt="Logo"
-                        width={180}
-                        height={60}
-                        priority
-                        className="object-contain w-[100px] md:w-[120px] h-auto"
-                    />
-                </div>
-
-                {/* DESKTOP NAV */}
-                <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
-
-                    {menu.map((item: any, i: number) => {
-                        const key = item.name.toLowerCase();
-
-                        return (
-                            <NavItem
-                                key={i}
-                                label={item.name.toUpperCase()}
-                                hasDropdown={item.children.length > 0}
-                                onEnter={() => handleEnter(key)}
-                                onLeave={handleLeave}
-                            >
-
-                                {active === key && item.children.length > 0 && (
-
-                                    item.children.some((c: any) => c.children.length > 0)
-
-                                        ? (
-                                            <MegaMenuDynamic data={item.children} />
-                                        )
-
-                                        : (
-                                            <Dropdown>
-                                                {item.children.map((child: any, j: number) => (
-                                                    <a key={j}>{child.name}</a>
-                                                ))}
-                                            </Dropdown>
-                                        )
-                                )}
-
-                            </NavItem>
-                        );
-                    })}
-
-                </nav>
-
-                {/* RIGHT */}
-                <div className="flex items-center gap-4">
-
-                    <div className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 w-[260px]">
-                        <input
-                            placeholder="Search our store"
-                            className="bg-transparent outline-none text-sm flex-1"
+                    {/* LOGO */}
+                    <div className="flex items-center">
+                        <Image
+                            src={logo.src}
+                            alt="Logo"
+                            width={180}
+                            height={60}
+                            priority
+                            className="object-contain w-[100px] md:w-[120px] h-auto"
                         />
-                        <Search size={16} />
                     </div>
 
-                    {/* <-- User Icon updated to be a button that opens the modal */}
-                    <button 
-                        onClick={() => setIsAuthModalOpen(true)}
-                        className="hover:text-[#18582e] transition-colors focus:outline-none"
-                    >
-                        <User size={20} />
-                    </button>
-                    
-                    <Heart size={20} className="hover:text-[#18582e] transition-colors cursor-pointer" />
+                    {/* DESKTOP NAV */}
+                    <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
 
-                    <div className="relative hover:text-[#18582e] transition-colors cursor-pointer">
-                        <ShoppingBag size={20} />
-                        <span className="absolute -top-2 -right-2 text-[10px] bg-[#18582e] text-white rounded-full px-1.5">
-                            0
-                        </span>
+                        {menu.map((item: any, i: number) => {
+                            const key = item.name.toLowerCase();
+
+                            return (
+                                <NavItem
+                                    key={i}
+                                    label={item.name.toUpperCase()}
+                                    hasDropdown={item.children.length > 0}
+                                    onEnter={() => handleEnter(key)}
+                                    onLeave={handleLeave}
+                                >
+
+                                    {active === key && item.children.length > 0 && (
+
+                                        item.children.some((c: any) => c.children.length > 0)
+
+                                            ? (
+                                                <MegaMenuDynamic data={item.children} />
+                                            )
+
+                                            : (
+                                                <Dropdown>
+                                                    {item.children.map((child: any, j: number) => (
+                                                        <a key={j}>{child.name}</a>
+                                                    ))}
+                                                </Dropdown>
+                                            )
+                                    )}
+
+                                </NavItem>
+                            );
+                        })}
+
+                    </nav>
+
+                    {/* RIGHT */}
+                    <div className="flex items-center gap-4">
+
+                        <div className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 w-[260px]">
+                            <input
+                                placeholder="Search our store"
+                                className="bg-transparent outline-none text-sm flex-1"
+                            />
+                            <Search size={16} />
+                        </div>
+
+                        {/* <-- User Icon opens modal */}
+                        <button 
+                            onClick={() => setIsAuthModalOpen(true)}
+                            className="hover:text-[#18582e] transition-colors focus:outline-none"
+                        >
+                            <User size={20} />
+                        </button>
+                        
+                        {/* <-- Link to Wishlist Page */}
+                        <Link 
+                            href="/wishlist" 
+                            className="hover:text-[#18582e] transition-colors focus:outline-none"
+                        >
+                            <Heart size={20} />
+                        </Link>
+
+                        {/* <-- Link to Cart Page */}
+                        <Link 
+                            href="/cart" 
+                            className="relative hover:text-[#18582e] transition-colors focus:outline-none"
+                        >
+                            <ShoppingBag size={20} />
+                            <span className="absolute -top-2 -right-2 text-[10px] bg-[#18582e] text-white rounded-full px-1.5">
+                                0
+                            </span>
+                        </Link>
+
+                        <button className="md:hidden" onClick={() => setMobileOpen(true)}>
+                            <Menu />
+                        </button>
+                    </div>
+                </div>
+
+                {/* MOBILE DRAWER */}
+                <div
+                    className={clsx(
+                        "fixed top-0 left-0 w-full h-screen bg-white transition-transform duration-300 md:hidden z-50",
+                        mobileOpen ? "translate-x-0" : "-translate-x-full"
+                    )}
+                >
+                    <div className="flex justify-between p-4">
+                        <span className="font-semibold">MENU</span>
+                        <X onClick={() => setMobileOpen(false)} className="cursor-pointer" />
                     </div>
 
-                    <button className="md:hidden" onClick={() => setMobileOpen(true)}>
-                        <Menu />
-                    </button>
-                </div>
-            </div>
-
-            {/* MOBILE DRAWER */}
-            <div
-                className={clsx(
-                    "fixed top-0 left-0 w-full h-full bg-white transition-transform duration-300 md:hidden z-50",
-                    mobileOpen ? "translate-x-0" : "-translate-x-full"
-                )}
-            >
-                <div className="flex justify-between p-4">
-                    <span className="font-semibold">MENU</span>
-                    <X onClick={() => setMobileOpen(false)} className="cursor-pointer" />
+                    <div className="flex flex-col gap-4 p-4 text-sm">
+                        {menu.map((item: any, i: number) => (
+                            <MobileItem key={i} label={item.name}>
+                                {item.children.map((sub: any, j: number) => (
+                                    <span key={j}>{sub.name}</span>
+                                ))}
+                            </MobileItem>
+                        ))}
+                    </div>
                 </div>
 
-                <div className="flex flex-col gap-4 p-4 text-sm">
-                    {menu.map((item: any, i: number) => (
-                        <MobileItem key={i} label={item.name}>
-                            {item.children.map((sub: any, j: number) => (
-                                <span key={j}>{sub.name}</span>
-                            ))}
-                        </MobileItem>
-                    ))}
-                </div>
-            </div>
+            </header>
 
-            {/* <-- AuthModal rendered here */}
+            {/* <-- PLACED OUTSIDE THE HEADER TAG SO IT ESCAPES THE BACKDROP-BLUR --> */}
             <AuthModal 
                 isOpen={isAuthModalOpen} 
                 onClose={() => setIsAuthModalOpen(false)} 
             />
-
-        </header>
+        </>
     );
 }
 
@@ -218,7 +232,7 @@ function NavItem({ label, children, hasDropdown, onEnter, onLeave }: any) {
         <div
             onMouseEnter={onEnter}
             onMouseLeave={onLeave}
-            className="relative flex items-center gap-1 cursor-pointer"
+            className="relative flex items-center gap-1 cursor-pointer py-4"
         >
             {label}
             {hasDropdown && <ChevronDown size={14} />}
@@ -231,7 +245,7 @@ function NavItem({ label, children, hasDropdown, onEnter, onLeave }: any) {
 
 function Dropdown({ children }: any) {
     return (
-        <div className="absolute top-full left-0 mt-2 bg-white shadow-lg p-4 min-w-[180px] z-50 flex flex-col gap-2 text-sm">
+        <div className="absolute top-[100%] left-0 mt-2 bg-white shadow-lg p-4 min-w-[180px] z-50 flex flex-col gap-2 text-sm">
             {children}
         </div>
     );
@@ -241,7 +255,7 @@ function Dropdown({ children }: any) {
 
 function MegaMenuDynamic({ data }: any) {
     return (
-        <div className="fixed left-1/2 -translate-x-1/2 top-[80px] w-screen bg-white shadow-xl z-40">
+        <div className="fixed left-1/2 -translate-x-1/2 top-[45px] w-screen bg-white shadow-xl z-50">
             <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-5 gap-8">
 
                 {data.map((col: any, i: number) => (
