@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
 import {
     Search,
@@ -18,22 +18,67 @@ export default function Header() {
     const [active, setActive] = useState<string | null>(null);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
     const [mobileOpen, setMobileOpen] = useState(false);
-    const [mobileActive, setMobileActive] = useState<string | null>(null);
+
+    const [menu, setMenu] = useState<any[]>([]);
+
+    /* ---------------- FETCH MENU ---------------- */
+    useEffect(() => {
+        fetch("http://localhost:5000/api/menu")
+            .then(res => res.json())
+            .then(data => {
+
+                const map: any = {};
+
+                data.forEach((row: any) => {
+
+                    // MAIN
+                    if (!map[row.main_id]) {
+                        map[row.main_id] = {
+                            name: row.main_menu,
+                            children: []
+                        };
+                    }
+
+                    // SUB
+                    if (row.submenu_id) {
+
+                        let sub = map[row.main_id].children.find(
+                            (s: any) => s.id === row.submenu_id
+                        );
+
+                        if (!sub) {
+                            sub = {
+                                id: row.submenu_id,
+                                name: row.submenu,
+                                children: []
+                            };
+                            map[row.main_id].children.push(sub);
+                        }
+
+                        // MEGA
+                        if (row.mega_id) {
+                            sub.children.push({
+                                id: row.mega_id,
+                                name: row.mega_menu
+                            });
+                        }
+                    }
+
+                });
+
+                setMenu(Object.values(map));
+            })
+            .catch(err => console.error(err));
+    }, []);
 
     const handleEnter = (menu: string) => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
-        timeoutRef.current = setTimeout(() => {
-            setActive(menu);
-        });
+        timeoutRef.current = setTimeout(() => setActive(menu));
     };
 
     const handleLeave = () => {
         if (timeoutRef.current) clearTimeout(timeoutRef.current);
-
-        timeoutRef.current = setTimeout(() => {
-            setActive(null);
-        }, 200);
+        timeoutRef.current = setTimeout(() => setActive(null), 200);
     };
 
     return (
@@ -42,7 +87,7 @@ export default function Header() {
             {/* MAIN HEADER */}
             <div className="max-w-full mx-auto flex items-center justify-between py-1 px-4 md:px-15">
 
-                {/* LEFT - LOGO */}
+                {/* LOGO */}
                 <div className="flex items-center">
                     <Image
                         src={logo.src}
@@ -57,41 +102,44 @@ export default function Header() {
                 {/* DESKTOP NAV */}
                 <nav className="hidden md:flex items-center gap-8 text-sm font-medium">
 
-                    <NavItem label="HOME" />
+                    {menu.map((item: any, i: number) => {
+                        const key = item.name.toLowerCase();
 
-                    <NavItem
-                        label="SHOP"
-                        hasDropdown
-                        onEnter={() => handleEnter("shop")}
-                        onLeave={handleLeave}
-                    >
-                        {active === "shop" && <MegaMenu />}
-                    </NavItem>
+                        return (
+                            <NavItem
+                                key={i}
+                                label={item.name.toUpperCase()}
+                                hasDropdown={item.children.length > 0}
+                                onEnter={() => handleEnter(key)}
+                                onLeave={handleLeave}
+                            >
 
-                    <NavItem label="BLOG" />
+                                {active === key && item.children.length > 0 && (
 
-                    <NavItem
-                        label="ABOUT"
-                        hasDropdown
-                        onEnter={() => handleEnter("about")}
-                        onLeave={handleLeave}
-                    >
-                        {active === "about" && (
-                            <Dropdown>
-                                <a>About Us</a>
-                                <a>FAQ</a>
-                                <a>Terms</a>
-                            </Dropdown>
-                        )}
-                    </NavItem>
-                    <NavItem label="SALES" />
-                    <NavItem label="CONTACT" />
+                                    item.children.some((c: any) => c.children.length > 0)
+
+                                        ? (
+                                            <MegaMenuDynamic data={item.children} />
+                                        )
+
+                                        : (
+                                            <Dropdown>
+                                                {item.children.map((child: any, j: number) => (
+                                                    <a key={j}>{child.name}</a>
+                                                ))}
+                                            </Dropdown>
+                                        )
+                                )}
+
+                            </NavItem>
+                        );
+                    })}
+
                 </nav>
 
                 {/* RIGHT */}
                 <div className="flex items-center gap-4">
 
-                    {/* SEARCH */}
                     <div className="hidden md:flex items-center bg-gray-100 rounded-full px-4 py-2 w-[260px]">
                         <input
                             placeholder="Search our store"
@@ -110,11 +158,7 @@ export default function Header() {
                         </span>
                     </div>
 
-                    {/* MOBILE MENU BUTTON */}
-                    <button
-                        className="md:hidden"
-                        onClick={() => setMobileOpen(true)}
-                    >
+                    <button className="md:hidden" onClick={() => setMobileOpen(true)}>
                         <Menu />
                     </button>
                 </div>
@@ -133,19 +177,13 @@ export default function Header() {
                 </div>
 
                 <div className="flex flex-col gap-4 p-4 text-sm">
-                    <MobileItem label="HOME" />
-                    <MobileItem label="SHOP">
-                        <span>All Products</span>
-                        <span>New Arrivals</span>
-                        <span>Best Sellers</span>
-                    </MobileItem>
-                    <MobileItem label="BLOG" />
-                    <MobileItem label="about">
-                        <span>About</span>
-                        <span>FAQ</span>
-                        <span>Terms</span>
-                    </MobileItem>
-                    <MobileItem label="CONTACT" />
+                    {menu.map((item: any, i: number) => (
+                        <MobileItem key={i} label={item.name}>
+                            {item.children.map((sub: any, j: number) => (
+                                <span key={j}>{sub.name}</span>
+                            ))}
+                        </MobileItem>
+                    ))}
                 </div>
             </div>
         </header>
@@ -154,13 +192,7 @@ export default function Header() {
 
 /* ---------------- NAV ITEM ---------------- */
 
-function NavItem({
-    label,
-    children,
-    hasDropdown,
-    onEnter,
-    onLeave
-}: any) {
+function NavItem({ label, children, hasDropdown, onEnter, onLeave }: any) {
     return (
         <div
             onMouseEnter={onEnter}
@@ -184,61 +216,21 @@ function Dropdown({ children }: any) {
     );
 }
 
-/* ---------------- FULL WIDTH MEGA MENU ---------------- */
+/* ---------------- DYNAMIC MEGA MENU ---------------- */
 
-function MegaMenu() {
+function MegaMenuDynamic({ data }: any) {
     return (
         <div className="fixed left-1/2 -translate-x-1/2 top-[80px] w-screen bg-white shadow-xl z-40">
-
-            {/* CENTERED CONTENT */}
             <div className="max-w-7xl mx-auto px-6 py-10 grid grid-cols-2 md:grid-cols-5 gap-8">
 
-                <MenuColumn
-                    title="Categories"
-                    items={[
-                        "Clothing",
-                        "Crafts",
-                        "Wedding",
-                        "Accessories",
-                        "Artisans",
-                    ]}
-                />
+                {data.map((col: any, i: number) => (
+                    <MenuColumn
+                        key={i}
+                        title={col.name}
+                        items={col.children.map((c: any) => c.name)}
+                    />
+                ))}
 
-                <MenuColumn
-                    title="Clothing"
-                    items={[
-                        "Men's Clothing",
-                        "Women's Clothing",
-                        "Boy's Clothing",
-                        "Girl's Clothing",
-                        "Kid's Clothing",
-                        "New Arrivals",
-                    ]}
-                />
-
-                <MenuColumn
-                    title="Crafts"
-                    items={[
-                        "Lamps & Lights",
-                        "Linen & Mats",
-                        "Furnitures & Woods",
-                        "Bath & Beauty",
-                        "Wall hangings",
-                    ]}
-                />
-
-                <MenuColumn
-                    title="Artisans"
-                    items={[
-                        "Mandala Art",
-                        "Pattachitra",
-                        "Madhubani",
-                        "Saura Painting",
-                        "Applique",
-                    ]}
-                />
-
-                {/* PROMO */}
                 <div className="hidden md:block">
                     <div className="bg-gray-200 h-[140px] rounded-md" />
                     <p className="mt-3 text-sm font-medium">
