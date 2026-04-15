@@ -14,7 +14,7 @@ export default function ShopPage() {
   return (
     <>
       <div className="w-full flex bg-[#EEEEEE] p-4 md:p-6">
-        
+
         <Filter show={showFilter} setShow={setShowFilter} />
 
         <div className="flex-1 pl-4 md:pl-6">

@@ -3,9 +3,8 @@
 export default function Filter({ show, setShow }: any) {
   return (
     <aside
-      className={`fixed md:sticky top-0 left-0 h-full md:h-[calc(100vh)] overflow-y-auto w-[280px] bg-white p-6 shadow-md transition-transform ${
-        show ? "translate-x-0" : "-translate-x-full md:translate-x-0"
-      }`}
+      className={`fixed md:sticky top-0 left-0 h-full md:h-[calc(100vh)] overflow-y-auto w-[280px] bg-white p-6 shadow-md transition-transform ${show ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        }`}
     >
       <h2 className="text-lg font-semibold mb-4">Filters</h2>
 
