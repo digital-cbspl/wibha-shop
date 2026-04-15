@@ -14,10 +14,15 @@ import {
 import clsx from "clsx";
 import { logo } from "../assets/image/image";
 import axios from "axios";
+import AuthModal from "../components/AuthModal";
+
 export default function Header() {
     const [active, setActive] = useState<string | null>(null);
     const timeoutRef = useRef<NodeJS.Timeout | null>(null);
     const [mobileOpen, setMobileOpen] = useState(false);
+    
+    // <-- Auth Modal State added here
+    const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
 
     const [menu, setMenu] = useState<any[]>([]);
 
@@ -84,7 +89,7 @@ export default function Header() {
     };
 
     return (
-        <header className="w-full bg-white sticky top-9 z-50">
+        <header className="w-full bg-white sticky top-9 z-50 backdrop-blur-sm shadow-lg shadow-gray-200/40 border-b border-gray-50">
 
             {/* MAIN HEADER */}
             <div className="max-w-full mx-auto flex items-center justify-between py-1 px-4 md:px-15">
@@ -150,10 +155,17 @@ export default function Header() {
                         <Search size={16} />
                     </div>
 
-                    <User size={20} />
-                    <Heart size={20} />
+                    {/* <-- User Icon updated to be a button that opens the modal */}
+                    <button 
+                        onClick={() => setIsAuthModalOpen(true)}
+                        className="hover:text-[#18582e] transition-colors focus:outline-none"
+                    >
+                        <User size={20} />
+                    </button>
+                    
+                    <Heart size={20} className="hover:text-[#18582e] transition-colors cursor-pointer" />
 
-                    <div className="relative">
+                    <div className="relative hover:text-[#18582e] transition-colors cursor-pointer">
                         <ShoppingBag size={20} />
                         <span className="absolute -top-2 -right-2 text-[10px] bg-[#18582e] text-white rounded-full px-1.5">
                             0
@@ -175,7 +187,7 @@ export default function Header() {
             >
                 <div className="flex justify-between p-4">
                     <span className="font-semibold">MENU</span>
-                    <X onClick={() => setMobileOpen(false)} />
+                    <X onClick={() => setMobileOpen(false)} className="cursor-pointer" />
                 </div>
 
                 <div className="flex flex-col gap-4 p-4 text-sm">
@@ -188,6 +200,13 @@ export default function Header() {
                     ))}
                 </div>
             </div>
+
+            {/* <-- AuthModal rendered here */}
+            <AuthModal 
+                isOpen={isAuthModalOpen} 
+                onClose={() => setIsAuthModalOpen(false)} 
+            />
+
         </header>
     );
 }
