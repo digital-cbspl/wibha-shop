@@ -23,7 +23,7 @@ export default function Footer() {
                     />
 
                     <p className="text-sm text-gray-500 leading-relaxed">
-                        Discover timeless traditional products crafted with heritage and care. Bring home the essence of culture in every piece.
+                        Step into timeless tradition—where every piece is crafted with heritage, intention, and soul. Bring home more than just a product; bring home culture that speaks.
                     </p>
 
                     {/* Social */}
