@@ -5,7 +5,6 @@ import { usePathname } from "next/navigation";
 import Header from "../layout/Header";
 import Footer from "../layout/Footer";
 import TopBar from "../layout/TopBar";
-// import GlobalPreloader from "../components/GlobalPreloader";
 
 export default function LayoutWrapper({
   children,
@@ -36,10 +35,6 @@ export default function LayoutWrapper({
       document.body.style.overflow = "auto";
     };
   }, [isExcluded]);
-
-  if (loading && !isExcluded) {
-    return <div>Loading...</div>; // or <GlobalPreloader />
-  }
 
   if (isExcluded) {
     return <>{children}</>;
