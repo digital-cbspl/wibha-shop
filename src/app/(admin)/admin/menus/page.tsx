@@ -56,7 +56,7 @@ export default function NavigationMenusPage() {
     const fetchMenus = async () => {
         try {
             setLoading(true);
-            const response = await axios.get("http://localhost:5000/api/menu");
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/menu`);
             const transformed = transformMenuData(response.data);
             setMenuGroups(transformed);
         } catch (error) {
@@ -111,40 +111,39 @@ export default function NavigationMenusPage() {
         const from = dragItem.current;
         const to = { tier: targetTier, gIdx, mIdx, sIdx, mgIdx };
 
-        // Ensure we only swap within the exact same parent container
+        // Prevent cross-group or cross-tier dragging
         if (from.tier !== to.tier || from.gIdx !== to.gIdx) {
             setDraggingId(null);
             return;
         }
 
         setMenuGroups(prevGroups => {
-            const newGroups = JSON.parse(JSON.stringify(prevGroups)); // Deep clone
+            const newGroups = JSON.parse(JSON.stringify(prevGroups));
+            let list: any[] = [];
 
-            try {
-                if (from.tier === 'main') {
-                    if (from.mIdx === to.mIdx) return newGroups;
-                    const list = newGroups[from.gIdx].items;
-                    const [dragged] = list.splice(from.mIdx, 1);
-                    list.splice(to.mIdx, 0, dragged);
-                    list.forEach((val: any, idx: number) => val.sort_order = idx + 1);
-                }
-                else if (from.tier === 'sub') {
-                    if (from.mIdx !== to.mIdx || from.sIdx === to.sIdx) return newGroups;
-                    const list = newGroups[from.gIdx].items[from.mIdx].subItems;
-                    const [dragged] = list.splice(from.sIdx!, 1);
-                    list.splice(to.sIdx!, 0, dragged);
-                    list.forEach((val: any, idx: number) => val.sort_order = idx + 1);
-                }
-                else if (from.tier === 'mega') {
-                    if (from.mIdx !== to.mIdx || from.sIdx !== to.sIdx || from.mgIdx === to.mgIdx) return newGroups;
-                    const list = newGroups[from.gIdx].items[from.mIdx].subItems[from.sIdx!].megaItems;
-                    const [dragged] = list.splice(from.mgIdx!, 1);
-                    list.splice(to.mgIdx!, 0, dragged);
-                    list.forEach((val: any, idx: number) => val.sort_order = idx + 1);
-                }
-            } catch (err) {
-                console.error("Sorting error:", err);
+            if (from.tier === 'main') {
+                list = newGroups[from.gIdx].items;
+            } else if (from.tier === 'sub') {
+                // Ensure we are in the same Main menu parent
+                if (from.mIdx !== to.mIdx) return newGroups;
+                list = newGroups[from.gIdx].items[from.mIdx].subItems;
+            } else if (from.tier === 'mega') {
+                // Ensure we are in the same Submenu parent
+                if (from.mIdx !== to.mIdx || from.sIdx !== to.sIdx) return newGroups;
+                list = newGroups[from.gIdx].items[from.mIdx].subItems[from.sIdx!].megaItems;
             }
+
+            // Perform the move
+            const fromIdx = from.tier === 'main' ? from.mIdx : (from.tier === 'sub' ? from.sIdx! : from.mgIdx!);
+            const toIdx = to.tier === 'main' ? to.mIdx : (to.tier === 'sub' ? to.sIdx! : to.mgIdx!);
+
+            const [draggedItem] = list.splice(fromIdx, 1);
+            list.splice(toIdx, 0, draggedItem);
+
+            // Update sort_order based on new array positions
+            list.forEach((item, index) => {
+                item.sort_order = index + 1;
+            });
 
             return newGroups;
         });
@@ -160,10 +159,13 @@ export default function NavigationMenusPage() {
 
             menuGroups.forEach(group => {
                 group.items.forEach((main: any, mainIdx: number) => {
+                    // Ensure main.id is the actual DB primary key
                     sortPayload.push({ id: main.id, sort_order: mainIdx + 1 });
+
                     if (main.subItems) {
                         main.subItems.forEach((sub: any, subIdx: number) => {
                             sortPayload.push({ id: sub.id, sort_order: subIdx + 1 });
+
                             if (sub.megaItems) {
                                 sub.megaItems.forEach((mega: any, megaIdx: number) => {
                                     sortPayload.push({ id: mega.id, sort_order: megaIdx + 1 });
@@ -174,20 +176,26 @@ export default function NavigationMenusPage() {
                 });
             });
 
-            await axios.put("http://localhost:5000/api/menu/reorder", { items: sortPayload });
-            alert("Sort order saved!");
-        } catch (err) {
-            console.error("Failed to save sort order", err);
-            alert("Failed to save sort order.");
+            console.log("Sending Sort Payload:", sortPayload); // CHECK THIS IN CONSOLE
+
+            const response = await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/menu/reorder`, {
+                items: sortPayload
+            });
+
+            console.log("Server Response:", response.data);
+            alert("Sort order saved successfully!");
+            fetchMenus(); // Refresh to ensure frontend matches DB
+        } catch (err: any) {
+            console.error("Failed to save sort order", err.response?.data || err.message);
+            alert(`Failed to save: ${err.response?.data?.message || "Check console for details"}`);
         } finally {
             setIsSavingSort(false);
         }
     };
-
     const handleDelete = async (id: number) => {
         if (confirm("Are you sure you want to delete this menu item?")) {
             try {
-                await axios.delete(`http://localhost:5000/api/menu/${id}`);
+                await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/menu/${id}`);
                 fetchMenus();
             } catch (error) {
                 alert("Failed to delete item");
@@ -197,9 +205,17 @@ export default function NavigationMenusPage() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [editingMenuId, setEditingMenuId] = useState<number | null>(null);
 
+    // const handleEditClick = (id: number) => {
+    //     setEditingMenuId(id);
+    //     setIsEditModalOpen(true);
+    // };
+
     const handleEditClick = (id: number) => {
-        setEditingMenuId(id);
-        setIsEditModalOpen(true);
+        setEditingMenuId(null); // Clear previous ID first to trigger a fresh mount/effect
+        setTimeout(() => {
+            setEditingMenuId(id);
+            setIsEditModalOpen(true);
+        }, 10);
     };
 
     const handleEditSuccess = () => {
@@ -327,7 +343,7 @@ export default function NavigationMenusPage() {
                                                                 </div>
                                                                 <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                                     <button
-                                                                        onClick={() => handleEditClick(main.id)}
+                                                                        onClick={() => handleEditClick(sub.id)}
                                                                         className="p-1.5 text-gray-400 hover:text-[#18582e] hover:bg-[#18582e]/10 rounded-lg transition-colors"
                                                                     >
                                                                         <Edit size={14} />
@@ -367,7 +383,7 @@ export default function NavigationMenusPage() {
                                                                             </div>
                                                                             <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
                                                                                 <button
-                                                                                    onClick={() => handleEditClick(main.id)}
+                                                                                    onClick={() => handleEditClick(mega.id)}
                                                                                     className="p-1.5 text-gray-400 hover:text-[#18582e] hover:bg-[#18582e]/10 rounded-lg transition-colors"
                                                                                 >
                                                                                     <Edit size={14} />

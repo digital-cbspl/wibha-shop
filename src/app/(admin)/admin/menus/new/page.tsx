@@ -46,7 +46,7 @@ export default function CreateMenuPage() {
     const fetchParents = async () => {
         setIsLoadingParents(true);
         try {
-            const response = await axios.get("http://localhost:5000/api/menu");
+            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/menu`);
             const allMenus = response.data;
             
             let filteredParents: any[] = [];
