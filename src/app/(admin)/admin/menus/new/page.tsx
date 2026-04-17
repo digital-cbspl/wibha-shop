@@ -12,6 +12,7 @@ import {
     PanelBottom,
     Loader2
 } from "lucide-react";
+import { API_BASE_URL } from "@/src/src/utils/config";
 
 export default function CreateMenuPage() {
     const router = useRouter();
@@ -46,7 +47,7 @@ export default function CreateMenuPage() {
     const fetchParents = async () => {
         setIsLoadingParents(true);
         try {
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/menu`);
+            const response = await axios.get(`${API_BASE_URL}/api/menu`);
             const allMenus = response.data;
             
             let filteredParents: any[] = [];
@@ -117,7 +118,7 @@ export default function CreateMenuPage() {
                 sort_order: 99 // Put new items at the end by default
             };
 
-            await axios.post("http://localhost:5000/api/menu", payload);
+            await axios.post(`${API_BASE_URL}/api/menu`, payload);
             
             router.push("/admin/menus");
             router.refresh();
