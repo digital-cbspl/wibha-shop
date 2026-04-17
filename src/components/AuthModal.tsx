@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { X, Mail, Lock, User, Eye, EyeOff, ArrowRight } from "lucide-react";
+import { X, Mail, Lock, User, Eye, EyeOff, ArrowRight, Phone, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
+import { API_BASE_URL } from "../src/utils/config";
 
 type AuthModalProps = {
     isOpen: boolean;
@@ -12,127 +13,323 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     const [view, setView] = useState<"login" | "register">("login");
     const [showPassword, setShowPassword] = useState(false);
 
+    // API Integration State
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState<string | null>(null);
+    const [success, setSuccess] = useState<string | null>(null);
+
+    // Field-level validation state
+    const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
+
+    const [formData, setFormData] = useState({
+        name: "",
+        identifier: "", // Used for Login (Email or Phone)
+        email: "",      // Used for Register
+        phone: "",      // Used for Register
+        password: "",
+    });
+
     // Prevent scrolling when modal is open
     useEffect(() => {
         if (isOpen) {
             document.body.style.overflow = "hidden";
         } else {
             document.body.style.overflow = "unset";
+            resetState();
         }
         return () => { document.body.style.overflow = "unset"; };
     }, [isOpen]);
+
+    const resetState = () => {
+        setError(null);
+        setSuccess(null);
+        setFieldErrors({});
+        setFormData({
+            name: "",
+            identifier: "",
+            email: "",
+            phone: "",
+            password: "",
+        });
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value } = e.target;
+        setFormData({ ...formData, [name]: value });
+        
+        // Clear global error and specific field error as soon as the user starts typing
+        setError(null); 
+        if (fieldErrors[name]) {
+            setFieldErrors((prev) => ({ ...prev, [name]: "" }));
+        }
+    }
+
+    // --- NEW: Robust Client-Side Validation ---
+    const validateForm = (): boolean => {
+        const errors: Record<string, string> = {};
+
+        if (view === "register") {
+            if (!formData.name.trim() || formData.name.trim().length < 2) {
+                errors.name = "Name must be at least 2 characters.";
+            }
+            
+            // Standard Email Regex
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!emailRegex.test(formData.email)) {
+                errors.email = "Please enter a valid email address.";
+            }
+
+            // Phone Regex: 10 to 15 digits
+            const phoneRegex = /^\d{10,15}$/;
+            if (!phoneRegex.test(formData.phone)) {
+                errors.phone = "Enter a valid 10-15 digit phone number.";
+            }
+
+            if (formData.password.length < 6) {
+                errors.password = "Password must be at least 6 characters.";
+            }
+        } else {
+            // Login Validation
+            if (!formData.identifier.trim()) {
+                errors.identifier = "Please enter your email or phone number.";
+            }
+            if (!formData.password) {
+                errors.password = "Please enter your password.";
+            }
+        }
+
+        setFieldErrors(errors);
+        return Object.keys(errors).length === 0;
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        
+        // Run validation before making the API call
+        if (!validateForm()) return;
+
+        setIsLoading(true);
+        setError(null);
+        setSuccess(null);
+
+        try {
+            const endpoint = view === "login" 
+                ? `${API_BASE_URL}/api/auth/login` 
+                : `${API_BASE_URL}/api/auth/register`;
+                
+            const payload = view === "login" 
+                ? { identifier: formData.identifier, password: formData.password }
+                : { name: formData.name, email: formData.email, phone: formData.phone, password: formData.password };
+
+            const response = await fetch(endpoint, {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+
+            const data = await response.json();
+
+            if (!response.ok) {
+                throw new Error(data.error || "Authentication failed.");
+            }
+
+            localStorage.setItem("token", data.token);
+            localStorage.setItem("user", JSON.stringify(data.user));
+            
+            if (view === "register") {
+                setSuccess("Account created successfully!");
+            } else {
+                setSuccess("Signed in successfully!");
+            }
+            
+            setTimeout(() => {
+                onClose();
+            }, 1000);
+
+        } catch (err: any) {
+            setError(err.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const switchView = (newView: "login" | "register") => {
+        setView(newView);
+        setError(null);
+        setSuccess(null);
+        setFieldErrors({}); // Clear validation errors on view switch
+    };
+
+    // Helper to apply dynamic classes based on field error state
+    const getInputClassName = (fieldName: string) => `
+        w-full pl-12 pr-5 py-4 rounded-xl outline-none transition-all font-medium
+        ${fieldErrors[fieldName] 
+            ? "bg-red-50/50 border-red-300 text-red-900 placeholder-red-300 focus:bg-white focus:ring-2 focus:ring-red-500 focus:border-transparent" 
+            : "bg-gray-50 border-gray-200 text-gray-900 placeholder-gray-400 focus:bg-white focus:ring-2 focus:ring-[#18582e] focus:border-transparent border"}
+    `;
 
     if (!isOpen) return null;
 
     return (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 text-sans selection:bg-[#18582e] selection:text-white">
-            
+
             {/* Backdrop */}
-            <div 
-                className="absolute inset-0 bg-[#1a1a1a]/40 backdrop-blur-sm transition-opacity animate-in fade-in duration-300"
-                onClick={onClose}
-            ></div>
+            <div className="absolute inset-0 bg-[#1a1a1a]/40 backdrop-blur-sm transition-opacity animate-in fade-in duration-300" onClick={onClose}></div>
 
             {/* Modal Content */}
-            <div 
-                className="relative w-full max-w-[440px] bg-white rounded-[2rem] shadow-2xl shadow-gray-900/20 overflow-hidden animate-in fade-in zoom-in-95 duration-300 slide-in-from-bottom-4"
-                onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside modal
-            >
+            <div className="relative w-full max-w-[440px] bg-white rounded-[2rem] shadow-2xl shadow-gray-900/20 overflow-hidden animate-in fade-in zoom-in-95 duration-300 slide-in-from-bottom-4" onClick={(e) => e.stopPropagation()}>
+                
                 {/* Close Button */}
-                <button 
-                    onClick={onClose}
-                    className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-50 rounded-full transition-colors z-10"
-                >
+                <button onClick={onClose} className="absolute top-6 right-6 p-2 text-gray-400 hover:text-gray-900 hover:bg-gray-50 rounded-full transition-colors z-10">
                     <X size={20} />
                 </button>
 
                 <div className="p-8 md:p-10 pt-12">
-                    
+
                     {/* Header & Tabs */}
                     <div className="mb-8">
                         <div className="flex gap-6 border-b border-gray-100">
-                            <button 
-                                onClick={() => setView("login")}
-                                className={`pb-4 font-serif text-xl sm:text-2xl transition-all relative ${
-                                    view === "login" 
-                                    ? "text-[#1a1a1a] font-medium" 
-                                    : "text-gray-400 hover:text-gray-600"
-                                }`}
+                            <button
+                                onClick={() => switchView("login")}
+                                className={`pb-4 font-serif text-xl sm:text-2xl transition-all relative ${view === "login" ? "text-[#1a1a1a] font-medium" : "text-gray-400 hover:text-gray-600"}`}
                             >
                                 Sign In
-                                {view === "login" && (
-                                    <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#18582e] rounded-t-full"></div>
-                                )}
+                                {view === "login" && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#18582e] rounded-t-full"></div>}
                             </button>
-                            <button 
-                                onClick={() => setView("register")}
-                                className={`pb-4 font-serif text-xl sm:text-2xl transition-all relative ${
-                                    view === "register" 
-                                    ? "text-[#1a1a1a] font-medium" 
-                                    : "text-gray-400 hover:text-gray-600"
-                                }`}
+                            <button
+                                onClick={() => switchView("register")}
+                                className={`pb-4 font-serif text-xl sm:text-2xl transition-all relative ${view === "register" ? "text-[#1a1a1a] font-medium" : "text-gray-400 hover:text-gray-600"}`}
                             >
                                 Register
-                                {view === "register" && (
-                                    <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#18582e] rounded-t-full"></div>
-                                )}
+                                {view === "register" && <div className="absolute bottom-0 left-0 w-full h-[2px] bg-[#18582e] rounded-t-full"></div>}
                             </button>
                         </div>
                     </div>
 
+                    {/* Server Error Message */}
+                    {error && (
+                        <div className="mb-6 p-4 bg-red-50/50 text-red-600 text-sm rounded-xl border border-red-100 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+                            <AlertCircle size={18} className="mt-0.5 shrink-0 text-red-500" />
+                            <span className="font-medium">{error}</span>
+                        </div>
+                    )}
+                    
+                    {/* Success Message */}
+                    {success && (
+                        <div className="mb-6 p-4 bg-[#18582e]/5 text-[#18582e] text-sm rounded-xl border border-[#18582e]/20 flex items-start gap-3 animate-in fade-in slide-in-from-top-2">
+                            <CheckCircle2 size={18} className="mt-0.5 shrink-0 text-[#18582e]" />
+                            <span className="font-medium">{success}</span>
+                        </div>
+                    )}
+
                     {/* Dynamic Form Area */}
                     <div className="relative">
-                        <form className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300" key={view}>
-                            
-                            {/* Conditional Name Field for Registration */}
+                        <form onSubmit={handleSubmit} className="space-y-4 animate-in fade-in slide-in-from-right-4 duration-300" key={view} noValidate>
+
                             {view === "register" && (
-                                <div className="relative">
-                                    <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-gray-400">
-                                        <User size={18} />
+                                <>
+                                    {/* Name Field */}
+                                    <div>
+                                        <div className="relative">
+                                            <div className={`absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none ${fieldErrors.name ? "text-red-400" : "text-gray-400"}`}>
+                                                <User size={18} />
+                                            </div>
+                                            <input
+                                                type="text"
+                                                name="name"
+                                                value={formData.name}
+                                                onChange={handleChange}
+                                                placeholder="Full Name"
+                                                className={getInputClassName("name")}
+                                            />
+                                        </div>
+                                        {fieldErrors.name && <p className="text-red-500 text-xs mt-1.5 ml-1 font-medium animate-in fade-in">{fieldErrors.name}</p>}
                                     </div>
-                                    <input 
-                                        type="text" 
-                                        required 
-                                        placeholder="Full Name" 
-                                        className="w-full pl-12 pr-5 py-4 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:bg-white focus:ring-2 focus:ring-[#18582e] focus:border-transparent transition-all placeholder-gray-400 text-gray-900 font-medium" 
-                                    />
+
+                                    {/* Phone Field */}
+                                    <div>
+                                        <div className="relative">
+                                            <div className={`absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none ${fieldErrors.phone ? "text-red-400" : "text-gray-400"}`}>
+                                                <Phone size={18} />
+                                            </div>
+                                            <input
+                                                type="tel"
+                                                name="phone"
+                                                value={formData.phone}
+                                                onChange={handleChange}
+                                                placeholder="Phone Number"
+                                                className={getInputClassName("phone")}
+                                            />
+                                        </div>
+                                        {fieldErrors.phone && <p className="text-red-500 text-xs mt-1.5 ml-1 font-medium animate-in fade-in">{fieldErrors.phone}</p>}
+                                    </div>
+
+                                    {/* Email Field */}
+                                    <div>
+                                        <div className="relative">
+                                            <div className={`absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none ${fieldErrors.email ? "text-red-400" : "text-gray-400"}`}>
+                                                <Mail size={18} />
+                                            </div>
+                                            <input
+                                                type="email"
+                                                name="email"
+                                                value={formData.email}
+                                                onChange={handleChange}
+                                                placeholder="Email Address"
+                                                className={getInputClassName("email")}
+                                            />
+                                        </div>
+                                        {fieldErrors.email && <p className="text-red-500 text-xs mt-1.5 ml-1 font-medium animate-in fade-in">{fieldErrors.email}</p>}
+                                    </div>
+                                </>
+                            )}
+
+                            {view === "login" && (
+                                /* Combined Email/Phone Field for Login */
+                                <div>
+                                    <div className="relative">
+                                        <div className={`absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none ${fieldErrors.identifier ? "text-red-400" : "text-gray-400"}`}>
+                                            <User size={18} />
+                                        </div>
+                                        <input
+                                            type="text"
+                                            name="identifier"
+                                            value={formData.identifier}
+                                            onChange={handleChange}
+                                            placeholder="Email or Phone Number"
+                                            className={getInputClassName("identifier")}
+                                        />
+                                    </div>
+                                    {fieldErrors.identifier && <p className="text-red-500 text-xs mt-1.5 ml-1 font-medium animate-in fade-in">{fieldErrors.identifier}</p>}
                                 </div>
                             )}
 
-                            {/* Email Field */}
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-gray-400">
-                                    <Mail size={18} />
+                            {/* Password Field (Shared) */}
+                            <div>
+                                <div className="relative">
+                                    <div className={`absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none ${fieldErrors.password ? "text-red-400" : "text-gray-400"}`}>
+                                        <Lock size={18} />
+                                    </div>
+                                    <input
+                                        type={showPassword ? "text" : "password"}
+                                        name="password"
+                                        value={formData.password}
+                                        onChange={handleChange}
+                                        placeholder="Password"
+                                        className={`${getInputClassName("password")} pr-12`} // Keep padding for the eye icon
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className={`absolute inset-y-0 right-0 pr-5 flex items-center transition-colors ${fieldErrors.password ? "text-red-400 hover:text-red-600" : "text-gray-400 hover:text-gray-600"}`}
+                                    >
+                                        {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                                    </button>
                                 </div>
-                                <input 
-                                    type="email" 
-                                    required 
-                                    placeholder="Email Address" 
-                                    className="w-full pl-12 pr-5 py-4 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:bg-white focus:ring-2 focus:ring-[#18582e] focus:border-transparent transition-all placeholder-gray-400 text-gray-900 font-medium" 
-                                />
+                                {fieldErrors.password && <p className="text-red-500 text-xs mt-1.5 ml-1 font-medium animate-in fade-in">{fieldErrors.password}</p>}
                             </div>
 
-                            {/* Password Field */}
-                            <div className="relative">
-                                <div className="absolute inset-y-0 left-0 pl-5 flex items-center pointer-events-none text-gray-400">
-                                    <Lock size={18} />
-                                </div>
-                                <input 
-                                    type={showPassword ? "text" : "password"} 
-                                    required 
-                                    placeholder="Password" 
-                                    className="w-full pl-12 pr-12 py-4 rounded-xl bg-gray-50 border border-gray-200 outline-none focus:bg-white focus:ring-2 focus:ring-[#18582e] focus:border-transparent transition-all placeholder-gray-400 text-gray-900 font-medium" 
-                                />
-                                <button 
-                                    type="button"
-                                    onClick={() => setShowPassword(!showPassword)}
-                                    className="absolute inset-y-0 right-0 pr-5 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
-                                >
-                                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                                </button>
-                            </div>
-
-                            {/* Forgot Password Link (Only in Login) */}
+                            {/* Forgot Password Link */}
                             {view === "login" && (
                                 <div className="flex justify-end pt-1">
                                     <a href="#" className="text-sm font-medium text-gray-500 hover:text-[#18582e] transition-colors">
@@ -143,41 +340,25 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
 
                             {/* Submit Button */}
                             <div className="pt-4">
-                                <button type="submit" className="w-full bg-[#1a1a1a] text-white py-4 rounded-xl font-medium hover:bg-black shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 group">
-                                    {view === "login" ? "Sign In Securely" : "Create Account"}
-                                    <ArrowRight size={16} className="group-hover:translate-x-1 transition-transform" />
+                                <button
+                                    type="submit"
+                                    disabled={isLoading}
+                                    className="w-full bg-[#1a1a1a] text-white py-4 rounded-xl font-medium hover:bg-black shadow-lg shadow-black/5 hover:-translate-y-0.5 transition-all flex items-center justify-center gap-2 group disabled:opacity-80 disabled:hover:translate-y-0 disabled:cursor-not-allowed"
+                                >
+                                    {isLoading ? (
+                                        <>
+                                            <Loader2 size={18} className="animate-spin text-gray-400" />
+                                            <span>Processing...</span>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <span>{view === "login" ? "Sign In Securely" : "Create Account"}</span>
+                                            <ArrowRight size={18} className="group-hover:translate-x-1 transition-transform opacity-70" />
+                                        </>
+                                    )}
                                 </button>
                             </div>
                         </form>
-
-                        {/* Social Login Separator */}
-                        <div className="mt-8 mb-6 flex items-center gap-4">
-                            <div className="flex-1 h-px bg-gray-100"></div>
-                            <span className="text-xs uppercase tracking-wider font-bold text-gray-400">Or continue with</span>
-                            <div className="flex-1 h-px bg-gray-100"></div>
-                        </div>
-
-                        {/* Social Buttons */}
-                        <div className="grid grid-cols-2 gap-4">
-                            <button className="flex items-center justify-center gap-3 py-3.5 rounded-xl border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all font-medium text-sm text-gray-700">
-                                {/* Google SVG Icon */}
-                                <svg className="w-4 h-4" viewBox="0 0 24 24">
-                                    <path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" />
-                                    <path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" />
-                                    <path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z" />
-                                    <path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z" />
-                                </svg>
-                                Google
-                            </button>
-                            <button className="flex items-center justify-center gap-3 py-3.5 rounded-xl border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all font-medium text-sm text-gray-700">
-                                {/* Apple SVG Icon */}
-                                <svg className="w-4 h-4" fill="currentColor" viewBox="0 0 24 24">
-                                    <path d="M17.05 20.28c-.98.95-2.05.8-3.08.35-1.09-.46-2.09-.48-3.24 0-1.44.62-2.2.44-3.06-.35C2.79 15.25 3.51 7.59 9.05 7.31c1.35.07 2.29.74 3.08.8 1.18-.04 2.26-.79 3.59-.76 1.56.04 2.87.68 3.56 1.74-3.05 1.83-2.52 5.56.38 6.78-1.04 2.4-2.12 3.8-2.61 4.41zM12.03 7.25c-.15-2.23 1.66-4.07 3.74-4.25.29 2.58-2.34 4.5-3.74 4.25z" />
-                                </svg>
-                                Apple
-                            </button>
-                        </div>
-                        
                     </div>
                 </div>
             </div>
