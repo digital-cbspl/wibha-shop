@@ -16,6 +16,7 @@ import { logo } from "../assets/image/image";
 import axios from "axios";
 import AuthModal from "../components/AuthModal";
 import Link from "next/link";
+import { API_BASE_URL } from "../src/utils/config";
 
 export default function Header() {
     const [active, setActive] = useState<string | null>(null);
@@ -28,7 +29,7 @@ export default function Header() {
 
     /* ---------------- FETCH MENU ---------------- */
   useEffect(() => {
-    axios.get(`${process.env.NEXT_PUBLIC_API_URL}/menu`)
+    axios.get(`${API_BASE_URL}/api/menu`)
         .then((res) => {
             const data = res.data;
              const headerOnly = data.filter(

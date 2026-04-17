@@ -22,7 +22,7 @@ export default function Footer() {
                         className="mb-3 object-contain"
                     />
 
-                    <p className="text-sm text-gray-500 leading-relaxed">
+                    <p className="text-xs text-gray-500 leading-relaxed">
                         Step into timeless tradition—where every piece is crafted with heritage, intention, and soul. Bring home more than just a product; bring home culture that speaks.
                     </p>
 
@@ -70,7 +70,7 @@ export default function Footer() {
                 {/* Newsletter */}
                 <div>
                     <h3 className="font-semibold mb-3">Stay Updated</h3>
-                    <p className="text-sm text-gray-500 mb-4">
+                    <p className="text-xs text-gray-500 mb-4">
                         Subscribe to get special offers and updates.
                     </p>
 
@@ -78,7 +78,7 @@ export default function Footer() {
                         <input
                             type="email"
                             placeholder="Enter your email"
-                            className="px-3 py-2 text-sm outline-none flex-1"
+                            className="px-3 py-2 text-xs outline-none flex-1"
                         />
                         <button className="bg-[#18582e] px-2 flex items-center justify-center text-white">
                             <Mail size={18} />
@@ -92,7 +92,7 @@ export default function Footer() {
             <div className="border-t border-gray-200"></div>
 
             {/* BOTTOM */}
-            <div className="max-w-full mx-auto px-4 md:px-15 py-2 flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-gray-500">
+            <div className="max-w-full mx-auto px-4 md:px-15 py-2 flex flex-col md:flex-row items-center justify-between gap-4 text-xs text-gray-500">
 
                 <p>© {new Date().getFullYear()} WIBHA | All Rights Reserved || Developed by CBSPL. </p>
 
@@ -115,7 +115,7 @@ function FooterCol({ title, items }: any) {
     return (
         <div>
             <h3 className="font-semibold mb-3">{title}</h3>
-            <ul className="space-y-2 text-sm text-gray-500">
+            <ul className="space-y-2 text-xs text-gray-500">
                 {items.map((item: string, i: number) => (
                     <li key={i} className="hover:text-[#18582e] cursor-pointer transition">
                         {item}

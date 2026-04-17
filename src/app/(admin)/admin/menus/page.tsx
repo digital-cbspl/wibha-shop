@@ -10,6 +10,7 @@ import {
 import EditMenuModal from "@/src/components/EditMenuModal";
 // 1. Import Toast components
 import toast, { Toaster } from "react-hot-toast";
+import { API_BASE_URL } from "@/src/src/utils/config";
 
 const getLocationBadge = (location: string) => {
     const isHeader = location?.toLowerCase().includes('header');
@@ -47,7 +48,7 @@ export default function NavigationMenusPage() {
     const fetchMenus = async () => {
         try {
             setLoading(true);
-            const response = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/menu`);
+            const response = await axios.get(`${API_BASE_URL}/api/menu`);
             const transformed = transformMenuData(response.data);
             setMenuGroups(transformed);
         } catch (error) {
@@ -148,7 +149,7 @@ export default function NavigationMenusPage() {
                 });
             });
 
-            await axios.put(`${process.env.NEXT_PUBLIC_API_URL}/menu/reorder`, { items: sortPayload });
+            await axios.put(`${API_BASE_URL}/api/menu/reorder`, { items: sortPayload });
             fetchMenus();
         })();
 
@@ -168,7 +169,7 @@ export default function NavigationMenusPage() {
     const handleDelete = async (id: number) => {
         if (confirm("Delete this menu item?")) {
             try {
-                await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/menu/${id}`);
+                await axios.delete(`${API_BASE_URL}/api/menu/${id}`);
                 toast.success("Item deleted");
                 fetchMenus();
             } catch (error) {
